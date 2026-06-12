@@ -101,7 +101,10 @@
 </head>
 <body>
 
-<h1>前夜トレード計画＆撤退規律シート</h1>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+  <h1>前夜トレード計画＆撤退規律シート</h1>
+  <span id="syncStatus" style="font-size:10px;color:#888;">接続中…</span>
+</div>
 <p class="lede">利益確定は独立した技術ではなく<strong>「銘柄切替」</strong>の一形態。決めるのは「いくら乗ったか」ではなく<strong>点数とライン</strong>。場が引けた今夜のうちにTPと撤退ラインを数値で確定し、分割の指値・逆指値を発注しておく。場中の判断＝感情の引き金を、ここで先に消す。</p>
 
 <!-- ============ 1. PLAN FORM ============ -->
@@ -201,15 +204,68 @@
 </div>
 
 <script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYzvagoae1mjW_7uGNU5Xt_ssebSurUVmT8f2Dnnygmd7VPAokp01kHFsaxfgCVumHOQ/exec';
 const KEY = 'cleartrade_night_plans_v1';
-let plans = load();
+let plans = [];
+let syncing = false;
 
-function load() {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : []; }
-  catch (e) { return []; }
+// ---- sync status UI ----
+function setSyncStatus(msg, color) {
+  const el = document.getElementById('syncStatus');
+  if (el) { el.textContent = msg; el.style.color = color || '#888'; }
 }
-function persist() {
-  try { localStorage.setItem(KEY, JSON.stringify(plans)); } catch (e) {}
+
+// ---- load from Google Sheets on startup ----
+async function loadFromSheets() {
+  setSyncStatus('読み込み中…', '#b5851a');
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'load' })
+    });
+    const data = await res.json();
+    if (data.result === 'ok' && data.plans) {
+      plans = data.plans.map(p => ({
+        ...p,
+        en: Number(p.en), qty: Number(p.qty), tp: Number(p.tp), sl: Number(p.sl),
+        checks: [false, false, false],
+        exitType: p.exitType || null
+      })).filter(p => p.name);
+      // also save locally as cache
+      try { localStorage.setItem(KEY, JSON.stringify(plans)); } catch(e) {}
+      setSyncStatus('✓ Googleスプレッドシートと同期済み', '#1a7a4a');
+    }
+  } catch(e) {
+    // fallback to localStorage
+    try { const r = localStorage.getItem(KEY); if (r) plans = JSON.parse(r); } catch(e2) {}
+    setSyncStatus('オフライン（ローカルキャッシュ）', '#c02020');
+  }
+  render();
+}
+
+async function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(plans)); } catch(e) {}
+}
+
+async function saveToSheets(plan) {
+  setSyncStatus('保存中…', '#b5851a');
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'save', ...plan })
+    });
+    setSyncStatus('✓ 保存しました', '#1a7a4a');
+  } catch(e) { setSyncStatus('⚠ オフライン保存', '#c02020'); }
+}
+
+async function updateToSheets(plan) {
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'update', id: plan.id, status: plan.status, exitType: plan.exitType || '' })
+    });
+    setSyncStatus('✓ 更新しました', '#1a7a4a');
+  } catch(e) { setSyncStatus('⚠ オフライン', '#c02020'); }
 }
 const yen = n => '¥' + Math.round(n).toLocaleString('ja-JP');
 const num = id => parseFloat(document.getElementById(id).value);
@@ -256,12 +312,14 @@ function savePlan() {
   if (!name) { alert('銘柄を入力してください'); return; }
   if (!(en && qty && tp && sl)) { alert('EN・株数・TP・撤退ラインを入力してください'); return; }
   if (sl >= en || tp <= en) { alert('SLはEN未満、TPはEN超で入力してください'); return; }
-  plans.push({
+  const plan = {
     id: Date.now(), date: new Date().toISOString().slice(0, 10),
     name, pat: document.getElementById('f_pat').value, score: document.getElementById('f_score').value,
     en, qty, tp, sl, checks: [false, false, false], status: 'draft', exitType: null
-  });
-  persist(); render();
+  };
+  plans.push(plan);
+  await persist(); render();
+  await saveToSheets(plan);
   ['f_name','f_en','f_qty','f_tp','f_sl'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f_pat').value = ''; document.getElementById('f_score').value = '';
   recalc();
@@ -322,10 +380,10 @@ function render() {
   renderTally();
 }
 
-function toggleCheck(id, i) { const p = plans.find(x => x.id === id); p.checks[i] = !p.checks[i]; persist(); render(); }
-function closePlan(id, type) { const p = plans.find(x => x.id === id); p.status = 'closed'; p.exitType = type; persist(); render(); }
-function reopen(id) { const p = plans.find(x => x.id === id); p.status = 'draft'; p.exitType = null; persist(); render(); }
-function delPlan(id) { if (!confirm('この計画を削除しますか？')) return; plans = plans.filter(x => x.id !== id); persist(); render(); }
+async function toggleCheck(id, i) { const p = plans.find(x => x.id === id); p.checks[i] = !p.checks[i]; await persist(); render(); }
+async function closePlan(id, type) { const p = plans.find(x => x.id === id); p.status = 'closed'; p.exitType = type; await persist(); render(); await updateToSheets(p); }
+async function reopen(id) { const p = plans.find(x => x.id === id); p.status = 'draft'; p.exitType = null; await persist(); render(); await updateToSheets(p); }
+async function delPlan(id) { if (!confirm('この計画を削除しますか？')) return; plans = plans.filter(x => x.id !== id); await persist(); render(); }
 
 function renderTally() {
   const el = document.getElementById('tally');
@@ -351,7 +409,7 @@ function renderTally() {
       : '<div class="tally-note ng">①②が7割に届かない／SLが3割超なら、改善すべきはEXではなくEN。点数の低い場面で入っていないか見直す。</div>');
 }
 
-recalc(); render();
+recalc(); loadFromSheets();
 </script>
 </body>
 </html>
