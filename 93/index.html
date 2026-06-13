@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade plan - 93</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f5f4f0; color: #1a1a1a; padding: 16px; max-width: 900px; margin: 0 auto; line-height: 1.6; }
+  h1 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .lede { font-size: 12px; color: #555; margin-bottom: 16px; line-height: 1.7; }
+  .lede strong { color: #1a1a1a; }
+  .sec { background: #f0efe9; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .sec-title { font-size: 10px; letter-spacing: 0.2em; color: #888; margin: 0 0 14px; font-weight: 500; }
+  .step { display: inline-block; background: #0d0d0d; color: #c9a84c; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-right: 6px; letter-spacing: normal; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field label { display: block; font-size: 10px; color: #888; margin-bottom: 4px; letter-spacing: 0.08em; }
+  .field input, .field select { width: 100%; padding: 9px 10px; font-size: 14px; border: 0.5px solid #ccc; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; }
+  .field input:focus, .field select:focus { outline: none; border-color: #888; }
+  .hint { font-size: 10px; color: #aaa; margin-top: 3px; }
+  .coderow { display: flex; gap: 6px; }
+  .coderow input { flex: 1; min-width: 0; }
+  .getbtn { padding: 9px 14px; font-size: 12px; border: none; border-radius: 8px; background: #0d0d0d; color: #c9a84c; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  .getbtn:disabled { opacity: 0.5; }
+  .quoteinfo { font-size: 11px; color: #555; background: #fff; border: 0.5px solid #ddd; border-radius: 8px; padding: 8px 11px; margin-bottom: 10px; line-height: 1.8; }
+  .quoteinfo b { color: #1a1a1a; }
+  .candgrp { margin-bottom: 8px; }
+  .cg-t { font-size: 9px; letter-spacing: 0.12em; color: #888; margin-bottom: 5px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 11px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 20px; background: #fff; cursor: pointer; color: #333; }
+  .chip b { font-size: 12px; }
+  .chip .sub2 { font-size: 9px; color: #999; }
+  .chip.tpc { border-color: #1a7a4a; } .chip.tpc b { color: #1a7a4a; }
+  .chip.slc { border-color: #c02020; } .chip.slc b { color: #c02020; }
+  .mtxwrap { overflow-x: auto; margin-bottom: 12px; }
+  .mtx { width: 100%; border-collapse: collapse; font-size: 11px; background: #fff; border-radius: 8px; overflow: hidden; }
+  .mtx th, .mtx td { border: 0.5px solid #e5e3db; padding: 6px 5px; text-align: center; }
+  .mtx th { background: #f7f6f2; font-weight: 600; color: #555; font-size: 10px; }
+  .mtx td.rr { cursor: pointer; font-weight: 700; font-size: 13px; }
+  .rr.g { color: #1a7a4a; } .rr.a { color: #b5851a; } .rr.r { color: #c02020; }
+  .mtx .sub { display: block; font-weight: 400; color: #999; font-size: 9px; line-height: 1.4; }
+  .readout { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 4px 0 12px; }
+  .stat { background: #fff; border: 0.5px solid #ddd; border-radius: 8px; padding: 9px 10px; text-align: center; }
+  .stat .k { font-size: 9px; color: #888; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .stat .v { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .stat .v.green { color: #1a7a4a; } .stat .v.amber { color: #b5851a; } .stat .v.red { color: #c02020; }
+  .stat .u { font-size: 9px; color: #aaa; }
+  .splitline { background: #fff; border-left: 3px solid #c9a84c; border-radius: 0 8px 8px 0; padding: 9px 12px; font-size: 12px; color: #1a1a1a; margin-bottom: 12px; }
+  .splitline .t { font-size: 9px; letter-spacing: 0.15em; color: #c9a84c; margin-bottom: 4px; }
+  .flag { font-size: 11px; padding: 7px 11px; border-radius: 8px; margin-bottom: 10px; display: none; }
+  .flag.show { display: block; }
+  .flag.warn { background: #fbeede; color: #8a5a00; }
+  .flag.bad { background: #fce8e8; color: #c02020; }
+  .save-btn { width: 100%; padding: 11px; font-size: 13px; border: none; border-radius: 8px; background: #0d0d0d; color: #c9a84c; cursor: pointer; font-weight: 600; letter-spacing: 0.05em; }
+  .plan { background: #fff; border: 0.5px solid #ddd; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .plan.armed { border: 1px solid #1a7a4a; box-shadow: 0 0 0 3px rgba(26,122,74,0.07); }
+  .plan.closed { opacity: 0.62; }
+  .plan-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .plan-name { font-size: 15px; font-weight: 700; }
+  .plan-pat { font-size: 11px; color: #555; }
+  .plan-date { font-size: 10px; color: #aaa; margin-left: auto; }
+  .pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+  .pill.draft { background: #eee; color: #888; }
+  .pill.armed { background: #e3f1ea; color: #1a7a4a; }
+  .pill.done { background: #f0e9d8; color: #8a6d1a; }
+  .plan-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; font-size: 11px; }
+  .plan-nums div { background: #f7f6f2; border-radius: 6px; padding: 6px 8px; }
+  .plan-nums .lbl { font-size: 9px; color: #999; }
+  .plan-nums .val { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .checks { border-top: 0.5px solid #eee; padding-top: 10px; margin-bottom: 4px; }
+  .checks .ct { font-size: 9px; letter-spacing: 0.12em; color: #888; margin-bottom: 7px; }
+  .chk { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #333; margin-bottom: 7px; cursor: pointer; }
+  .chk input { margin-top: 2px; width: 15px; height: 15px; accent-color: #1a7a4a; flex-shrink: 0; }
+  .armed-banner { font-size: 11px; color: #1a7a4a; font-weight: 600; background: #e3f1ea; border-radius: 8px; padding: 8px 11px; margin-top: 6px; }
+  .closebar { border-top: 0.5px solid #eee; padding-top: 10px; margin-top: 4px; }
+  .closebar .ct { font-size: 9px; letter-spacing: 0.12em; color: #888; margin-bottom: 7px; }
+  .exbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .exb { font-size: 11px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 20px; background: #fff; color: #555; cursor: pointer; }
+  .exb.good { border-color: #1a7a4a; color: #1a7a4a; }
+  .exb.warn { border-color: #c02020; color: #c02020; }
+  .closed-tag { font-size: 11px; color: #555; }
+  .del { font-size: 10px; color: #c0392b; background: none; border: none; cursor: pointer; margin-left: 8px; }
+  .empty { font-size: 12px; color: #aaa; text-align: center; padding: 18px 0; }
+  .ref-row { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: #444; padding: 8px 0; border-bottom: 0.5px solid #eee; }
+  .ref-row:last-child { border-bottom: none; }
+  .ref-no { background: #0d0d0d; color: #c9a84c; font-size: 10px; width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .signal { background: #fff; border-left: 3px solid #c02020; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-top: 12px; font-size: 12px; color: #1a1a1a; line-height: 1.7; }
+  .signal .t { font-size: 9px; letter-spacing: 0.15em; color: #c02020; margin-bottom: 5px; }
+  .iron { font-size: 12px; color: #333; padding: 7px 0; padding-left: 18px; position: relative; line-height: 1.6; }
+  .iron::before { content: '—'; position: absolute; left: 0; color: #c9a84c; }
+  .tally-bar { margin-bottom: 12px; }
+  .tally-bar .tl { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-bottom: 4px; }
+  .tally-bar .tl b { color: #1a1a1a; }
+  .track { height: 10px; background: #e6e4dc; border-radius: 6px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 6px; }
+  .fill.green { background: #1a7a4a; } .fill.red { background: #c02020; }
+  .tally-note { font-size: 11px; padding: 8px 11px; border-radius: 8px; margin-top: 4px; }
+  .tally-note.ok { background: #e3f1ea; color: #1a7a4a; }
+  .tally-note.ng { background: #fbeede; color: #8a5a00; }
+  @media (max-width: 600px) {
+    .grid, .grid3, .readout { grid-template-columns: 1fr 1fr; }
+    .plan-nums { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+  <h1>Trade plan - 93</h1>
+  <span id="syncStatus" style="font-size:10px;color:#888;">接続中…</span>
+</div>
+<p class="lede">利益確定は独立した技術ではなく<strong>「銘柄切替」</strong>の一形態。決めるのは「いくら乗ったか」ではなく<strong>点数とライン</strong>。場が引けた今夜のうちにTPと撤退ラインを数値で確定し、分割の指値・逆指値を発注しておく。場中の判断＝感情の引き金を、ここで先に消す。</p>
+
+<div class="sec">
+  <p class="sec-title"><span class="step">計画</span> 1銘柄ずつ、数値で確定する</p>
+  <div class="grid">
+    <div class="field"><label>銘柄コード → 自動取得</label>
+      <div class="coderow">
+        <input id="f_code" inputmode="numeric" placeholder="7203" onkeydown="if(event.key==='Enter')fetchQuote()">
+        <button class="getbtn" id="getBtn" onclick="fetchQuote()">取得</button>
+      </div>
+    </div>
+    <div class="field"><label>銘柄名（自動取得・編集可）</label><input id="f_name" placeholder="例）7203 トヨタ自動車"></div>
+  </div>
+  <div class="quoteinfo" id="quoteInfo" style="display:none;"></div>
+  <div class="grid3">
+    <div class="field"><label>鉄板パターン</label>
+      <select id="f_pat">
+        <option value="">— 選択 —</option>
+        <option>①出来高倍増高値抜き</option><option>②株価二倍急騰</option><option>③陽線フィーバー</option>
+        <option>④出来高復活再急騰</option><option>⑤タンジェント急騰</option><option>⑥発展タンジェント急騰</option>
+        <option>⑦暴騰後38.2%押し</option><option>⑧Super Cup with Handle</option><option>⑨直線上昇</option>
+        <option>⑩ソーサー</option><option>⑪垂直急落後の急停止</option><option>⑫000＋3点ダブル抜け</option>
+        <option>⑬IPOセカンダリー2日足陽線</option><option>⑭急落急騰再急落</option><option>⑮急落急騰50%ノックアウト</option>
+        <option>⑯天井圏での出来高消滅</option><option>⑰長期上昇トレンド</option><option>⑱長期下落トレンド</option>
+      </select>
+    </div>
+    <div class="field"><label>点数（10点満点）</label>
+      <select id="f_score" onchange="recalc()">
+        <option value="">—</option>
+        <option value="10">10 楽勝・不安なし</option>
+        <option value="8">8 ほぼ不安なし</option>
+        <option value="6">6 懸念あるが自信</option>
+        <option value="2">2 悩みどころ</option>
+        <option value="0">0 正直難しい</option>
+      </select>
+    </div>
+    <div class="field"><label>株数</label><input id="f_qty" type="number" inputmode="numeric" placeholder="100" oninput="recalc()"></div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label>EN価格（現在値を自動入力・編集可）</label><input id="f_en" type="number" inputmode="decimal" placeholder="6000" oninput="recalc()"></div>
+    <div class="field"><label>TP価格</label><input id="f_tp" type="number" inputmode="decimal" placeholder="下の候補をタップ" oninput="recalc()">
+      <div class="hint">②なら二倍価格。原則ここを超えても追わない。</div>
+    </div>
+    <div class="field"><label>撤退ライン（SL）</label><input id="f_sl" type="number" inputmode="decimal" placeholder="下の候補をタップ" oninput="recalc()">
+      <div class="hint">命綱としてのSL。利確の道具に使わない。</div>
+    </div>
+  </div>
+  <div id="candPanel" style="display:none;">
+    <div class="candgrp"><div class="cg-t">TP候補（タップで入力）</div><div class="chips" id="tpChips"></div></div>
+    <div class="candgrp"><div class="cg-t">SL候補（タップで入力）</div><div class="chips" id="slChips"></div></div>
+    <div class="cg-t" style="margin-top:10px;">TP×SL 全組み合わせの比較（RR比／セルをタップで両方セット）</div>
+    <div class="mtxwrap"><table class="mtx" id="mtxTable"></table></div>
+  </div>
+  <div class="readout">
+    <div class="stat"><div class="k">RR 比</div><div class="v" id="o_rr">—</div><div class="u">(TP−EN)/(EN−SL)</div></div>
+    <div class="stat"><div class="k">想定利益（全株TP）</div><div class="v green" id="o_gain">—</div><div class="u">円</div></div>
+    <div class="stat"><div class="k">想定損失（SL）</div><div class="v red" id="o_loss">—</div><div class="u">円</div></div>
+  </div>
+  <div class="splitline" id="o_split" style="display:none;">
+    <div class="t">分割EXプラン</div>
+    <span id="o_split_txt"></span>
+  </div>
+  <div class="flag warn" id="flag_score">点数が6未満。ENを見送るか、ロットを大きく落とす場面。</div>
+  <div class="flag bad" id="flag_rr">RRが2未満。プロスペクト理論の閾値を下回る＝原則は見送り検討。</div>
+  <div class="flag bad" id="flag_order">SL（撤退ライン）はEN価格より下、TPはEN価格より上で入力してください。</div>
+  <button class="save-btn" onclick="savePlan()">この計画を保存する</button>
+</div>
+
+<div class="sec">
+  <p class="sec-title"><span class="step">計画一覧</span> 3つ全部チェックして初めて「発注済み」</p>
+  <div id="planList"><div class="empty">まだ計画がありません。上で1銘柄目を作成してください。</div></div>
+</div>
+
+<div class="sec">
+  <p class="sec-title"><span class="step">撤退トリガー</span> EXのタイミングはこの4つだけ</p>
+  <div class="ref-row"><div class="ref-no">1</div><div><strong>銘柄切替</strong>　より点数の高い銘柄が現れた → そちらへ資金移動</div></div>
+  <div class="ref-row"><div class="ref-no">2</div><div><strong>分散EX</strong>　保有銘柄の点数が下がってきた → ポジションを軽くする</div></div>
+  <div class="ref-row"><div class="ref-no">3</div><div><strong>SL撤退</strong>　逆指値に当たって強制撤退（結果が利確でも損切りでも同じ）</div></div>
+  <div class="ref-row"><div class="ref-no">4</div><div><strong>全撤退</strong>　異常事態が起きた → 全部降りる</div></div>
+  <div class="signal">
+    <div class="t">天井のサイン＝撤退の引き金</div>
+    出来高と価格の<strong>相関が崩れた＝変化</strong>。⑯天井圏での出来高消滅／オニールの3兆候（新高値だが出来高薄い・出来高急増だが終値が伸びない・先導株の急落）。これが見えたら①②、あるいは④。
+    <div style="margin-top:8px;font-size:11px;color:#888;">目安：①＋②で全EXの約7割。SL撤退は3割以下に。</div>
+  </div>
+</div>
+
+<div class="sec">
+  <p class="sec-title"><span class="step">場中の鉄則</span> 計画を「働かせる」だけ</p>
+  <div class="iron">板を見て、その場で新しい判断をしない。</div>
+  <div class="iron">含み益の<em>金額</em>を見ない。見ると本能が利確を急がせる。</div>
+  <div class="iron">発注済みの指値・逆指値を、場中に動かさない・外さない。</div>
+  <div class="iron">利確で喜ぶのを卒業する。早すぎる利確は損切りと同じ。</div>
+</div>
+
+<div class="sec">
+  <p class="sec-title"><span class="step">EX分布の自己診断</span> 終えた計画から自動集計</p>
+  <div id="tally"><div class="empty">計画を「終了」させると、ここにEXの内訳が出ます。</div></div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyU5CP1InPVY8IBO7MlEWe43XFwzIsNutu0G3moNAxJLTeFnpbX5XWiilRNWFcMGu0H/exec';
+const KEY = 'cleartrade_night_plans_93_v1';
+let plans = [];
+let quote = null; // 取得した株価データ
+
+function setSyncStatus(msg, color) {
+  const el = document.getElementById('syncStatus');
+  if (el) { el.textContent = msg; el.style.color = color || '#888'; }
+}
+
+async function gasGet(params) {
+  const qs = Object.entries(params).map(([k,v]) =>
+    k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)).join('&');
+  const url = GAS_URL + '?' + qs;
+  try {
+    const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+    if (res.ok) {
+      const txt = await res.text();
+      return JSON.parse(txt);
+    }
+  } catch (e) { /* CORS等で失敗したらJSONPへ */ }
+  return jsonpGet(params);
+}
+
+function jsonpGet(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'gascb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+    const all = { ...params, callback: cbName };
+    const qs = Object.entries(all).map(([k,v]) =>
+      k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)).join('&');
+    const script = document.createElement('script');
+    script.src = GAS_URL + '?' + qs;
+    script.onerror = () => { cleanup(); reject(new Error('script error')); };
+    document.body.appendChild(script);
+  });
+}
+
+// ===== 株価自動取得 =====
+const fmt = n => (n == null || isNaN(n)) ? '—' : Math.round(n).toLocaleString('ja-JP');
+
+async function fetchQuote() {
+  const code = document.getElementById('f_code').value.trim();
+  if (!code) { alert('銘柄コードを入力してください（例：7203）'); return; }
+  const btn = document.getElementById('getBtn');
+  btn.disabled = true; btn.textContent = '取得中';
+  setSyncStatus('株価取得中…', '#b5851a');
+  try {
+    const data = await gasGet({ action: 'quote', code });
+    if (data.result !== 'ok' || !data.price) throw new Error(data.message || 'no data');
+    quote = data;
+    // ①銘柄名 ②現在値 ③EN=現在値（すべて編集可）
+    document.getElementById('f_name').value = code + ' ' + (data.name || '');
+    document.getElementById('f_en').value = data.price;
+    document.getElementById('quoteInfo').style.display = 'block';
+    document.getElementById('quoteInfo').innerHTML =
+      `<b>${data.name || code}</b>　現在値 <b>¥${fmt(data.price)}</b>（前日終値 ¥${fmt(data.prevClose)}）<br>` +
+      `3ヶ月高値 ¥${fmt(data.high3m)}／前日安値 ¥${fmt(data.prevDayLow)}／5日安値 ¥${fmt(data.low5)}` +
+      (data.atrW ? `／週足ATR ${data.atrW}` : '');
+    recalc();
+    setSyncStatus('✓ 株価取得', '#1a7a4a');
+  } catch(e) {
+    setSyncStatus('⚠ 取得失敗', '#c02020');
+    alert('株価を取得できませんでした。\n・銘柄コードを確認（東証上場の4桁コード）\n・GASに quote 機能が追加済みか確認');
+  }
+  btn.disabled = false; btn.textContent = '取得';
+}
+
+// ④TP候補：2倍価格・節目・直近高値
+function stepFor(p) { return p < 1000 ? 50 : p < 3000 ? 100 : p < 10000 ? 500 : p < 30000 ? 1000 : 5000; }
+function tpCands(en) {
+  const c = [{ label: '2倍価格', v: en * 2 }];
+  const st = stepFor(en);
+  c.push({ label: '節目', v: Math.ceil((en + 0.01) / st) * st });
+  if (quote && quote.high3m) c.push({ label: '直近高値', v: quote.high3m });
+  return c.map(x => ({ ...x, v: Math.round(x.v) }));
+}
+// ⑤SL候補：週足ATR・前日安値・5日安値
+function slCands(en) {
+  const c = [];
+  if (quote) {
+    if (quote.atrW) c.push({ label: '週足ATR', v: en - quote.atrW });
+    if (quote.prevDayLow) c.push({ label: '前日安値', v: quote.prevDayLow });
+    if (quote.low5) c.push({ label: '5日安値', v: quote.low5 });
+  }
+  return c.map(x => ({ ...x, v: Math.round(x.v) }));
+}
+function setVal(id, v) { document.getElementById(id).value = v; recalc(); }
+function setBoth(tp, sl) { document.getElementById('f_tp').value = tp; document.getElementById('f_sl').value = sl; recalc(); }
+
+// ⑥候補チップ＆RRマトリクス
+function renderCandidates() {
+  const panel = document.getElementById('candPanel');
+  if (!quote) { panel.style.display = 'none'; return; }
+  const en = numVal('f_en') || quote.price;
+  const qty = numVal('f_qty');
+  const tps = tpCands(en), sls = slCands(en);
+  document.getElementById('tpChips').innerHTML = tps.map(t =>
+    `<span class="chip tpc" onclick="setVal('f_tp',${t.v})">${t.label} <b>${t.v.toLocaleString()}</b>` +
+    (qty && t.v > en ? `<span class="sub2"> +${fmt((t.v - en) * qty)}円</span>` : '') + `</span>`).join('');
+  document.getElementById('slChips').innerHTML = sls.map(s =>
+    `<span class="chip slc" onclick="setVal('f_sl',${s.v})">${s.label} <b>${s.v.toLocaleString()}</b>` +
+    (qty && s.v < en ? `<span class="sub2"> −${fmt((en - s.v) * qty)}円</span>` : '') + `</span>`).join('');
+  let h = '<tr><th>TP＼SL</th>' + sls.map(s =>
+    `<th>${s.label}<span class="sub">${s.v.toLocaleString()}${qty && s.v < en ? '<br>損 −' + fmt((en - s.v) * qty) : ''}</span></th>`).join('') + '</tr>';
+  for (const t of tps) {
+    h += `<tr><th>${t.label}<span class="sub">${t.v.toLocaleString()}${qty && t.v > en ? '<br>利 +' + fmt((t.v - en) * qty) : ''}</span></th>`;
+    for (const s of sls) {
+      if (t.v > en && s.v < en) {
+        const rr = (t.v - en) / (en - s.v);
+        const cls = rr >= 2 ? 'g' : rr >= 1 ? 'a' : 'r';
+        h += `<td class="rr ${cls}" onclick="setBoth(${t.v},${s.v})">${rr.toFixed(2)}</td>`;
+      } else h += '<td>—</td>';
+    }
+    h += '</tr>';
+  }
+  document.getElementById('mtxTable').innerHTML = h;
+  panel.style.display = 'block';
+}
+
+async function loadFromSheets() {
+  setSyncStatus('読み込み中…', '#b5851a');
+  try {
+    const data = await gasGet({ action: 'load' });
+    if (data.result === 'ok' && Array.isArray(data.plans)) {
+      plans = data.plans.map(p => ({
+        ...p,
+        id: Number(p.id),
+        en: Number(p.en), qty: Number(p.qty), tp: Number(p.tp), sl: Number(p.sl),
+        checks: [false, false, false],
+        exitType: p.exitType || null,
+        status: p.status || 'draft'
+      })).filter(p => p.name);
+      try { localStorage.setItem(KEY, JSON.stringify(plans)); } catch(e) {}
+      setSyncStatus('✓ 同期済み', '#1a7a4a');
+    } else {
+      throw new Error('no data');
+    }
+  } catch(e) {
+    try { const r = localStorage.getItem(KEY); if (r) plans = JSON.parse(r); } catch(e2) {}
+    setSyncStatus('オフライン（キャッシュ）', '#c02020');
+  }
+  render();
+}
+
+async function saveToSheets(plan) {
+  setSyncStatus('保存中…', '#b5851a');
+  try {
+    const rr = ((plan.tp - plan.en) / (plan.en - plan.sl)).toFixed(2);
+    await gasGet({ action: 'save', id: plan.id, date: plan.date, name: plan.name,
+      pat: plan.pat, score: plan.score, en: plan.en, qty: plan.qty,
+      tp: plan.tp, sl: plan.sl, rr, status: plan.status, exitType: plan.exitType || '' });
+    setSyncStatus('✓ 保存しました', '#1a7a4a');
+  } catch(e) { setSyncStatus('⚠ ローカル保存のみ', '#c02020'); }
+}
+
+async function updateToSheets(plan) {
+  try {
+    await gasGet({ action: 'update', id: plan.id, status: plan.status, exitType: plan.exitType || '' });
+    setSyncStatus('✓ 更新しました', '#1a7a4a');
+  } catch(e) { setSyncStatus('⚠ オフライン', '#c02020'); }
+}
+
+function persistLocal() {
+  try { localStorage.setItem(KEY, JSON.stringify(plans)); } catch(e) {}
+}
+
+// ===== RECALC =====
+const yen = n => '¥' + Math.round(n).toLocaleString('ja-JP');
+const numVal = id => parseFloat(document.getElementById(id).value);
+
+function recalc() {
+  const en = numVal('f_en'), qty = numVal('f_qty'), tp = numVal('f_tp'), sl = numVal('f_sl');
+  const score = document.getElementById('f_score').value;
+  const rrEl = document.getElementById('o_rr'), gEl = document.getElementById('o_gain'), lEl = document.getElementById('o_loss');
+  const orderBad = (en && sl && sl >= en) || (en && tp && tp <= en);
+  showFlag('flag_order', !!orderBad);
+  showFlag('flag_score', score !== '' && parseFloat(score) < 6);
+  if (en && tp && sl && tp > en && sl < en) {
+    const rr = (tp - en) / (en - sl);
+    rrEl.textContent = rr.toFixed(2);
+    rrEl.className = 'v ' + (rr >= 2 ? 'green' : rr >= 1 ? 'amber' : 'red');
+    showFlag('flag_rr', rr < 2);
+  } else { rrEl.textContent = '—'; rrEl.className = 'v'; showFlag('flag_rr', false); }
+  gEl.textContent = (en && tp && qty && tp > en) ? yen((tp - en) * qty) : '—';
+  lEl.textContent = (en && sl && qty && sl < en) ? yen((en - sl) * qty) : '—';
+  const splitWrap = document.getElementById('o_split');
+  if (qty && tp && en && tp > en) {
+    const half2 = Math.min(Math.max(100, Math.round(qty / 2 / 100) * 100), qty);
+    const runner = qty - half2;
+    document.getElementById('o_split_txt').innerHTML =
+      `TP <b>${tp}</b> で <b>${half2}株</b> を利確（指値）→ 残り <b>${runner}株</b> はトレーリング（週足ATRをSLに）。点数が落ちたら残りも分散EX。`;
+    splitWrap.style.display = 'block';
+  } else { splitWrap.style.display = 'none'; }
+  renderCandidates();
+}
+function showFlag(id, on) { document.getElementById(id).classList.toggle('show', on); }
+
+// ===== SAVE =====
+async function savePlan() {
+  const name = document.getElementById('f_name').value.trim();
+  const en = numVal('f_en'), qty = numVal('f_qty'), tp = numVal('f_tp'), sl = numVal('f_sl');
+  if (!name) { alert('銘柄を入力してください'); return; }
+  if (!(en && qty && tp && sl)) { alert('EN・株数・TP・撤退ラインを入力してください'); return; }
+  if (sl >= en || tp <= en) { alert('SLはEN未満、TPはEN超で入力してください'); return; }
+  const plan = {
+    id: Date.now(), date: new Date().toISOString().slice(0, 10),
+    name, pat: document.getElementById('f_pat').value,
+    score: document.getElementById('f_score').value,
+    en, qty, tp, sl, checks: [false, false, false], status: 'draft', exitType: null
+  };
+  plans.push(plan);
+  persistLocal(); render();
+  ['f_code','f_name','f_en','f_qty','f_tp','f_sl'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_pat').value = ''; document.getElementById('f_score').value = '';
+  quote = null;
+  document.getElementById('quoteInfo').style.display = 'none';
+  document.getElementById('candPanel').style.display = 'none';
+  recalc();
+  await saveToSheets(plan);
+  window.scrollTo({ top: document.querySelector('#planList').offsetTop - 60, behavior: 'smooth' });
+}
+
+// ===== RENDER =====
+const CHECK_LABELS = ['TPの指値（分割・半分）を発注した','撤退ラインの逆指値SLを発注した','これらを場中に動かさないと決めた'];
+const EX_TYPES = [{ k: '銘柄切替', cls: 'good' },{ k: '分散EX', cls: 'good' },{ k: 'SL撤退', cls: 'warn' },{ k: '全撤退', cls: 'warn' }];
+
+function render() {
+  const list = document.getElementById('planList');
+  if (!plans.length) { list.innerHTML = '<div class="empty">まだ計画がありません。上で1銘柄目を作成してください。</div>'; renderTally(); return; }
+  list.innerHTML = plans.slice().reverse().map(p => {
+    const rr = ((p.tp - p.en) / (p.en - p.sl)).toFixed(2);
+    const armed = p.checks && p.checks.every(Boolean);
+    const closed = p.status === 'closed';
+    const pill = closed ? `<span class="pill done">終了・${p.exitType}</span>`
+      : armed ? '<span class="pill armed">🔒 発注済み</span>' : '<span class="pill draft">下書き</span>';
+    const nums = `<div class="plan-nums">
+      <div><div class="lbl">EN</div><div class="val">${p.en}</div></div>
+      <div><div class="lbl">TP</div><div class="val">${p.tp}</div></div>
+      <div><div class="lbl">SL</div><div class="val">${p.sl}</div></div>
+      <div><div class="lbl">RR</div><div class="val">${rr}</div></div>
+    </div>`;
+    let body;
+    if (closed) {
+      body = `<div class="closed-tag">${p.date} に「${p.exitType}」で終了
+        <button class="del" onclick="reopenPlan(${p.id})">取消</button></div>`;
+    } else {
+      const chks = CHECK_LABELS.map((l,i) =>
+        `<label class="chk"><input type="checkbox" ${p.checks && p.checks[i] ? 'checked' : ''} onchange="toggleCheck(${p.id},${i})"><span>${l}</span></label>`).join('');
+      body = `<div class="checks"><div class="ct">発注チェック</div>${chks}
+        ${armed ? '<div class="armed-banner">この計画は発注済み。あとは計画を働かせるだけ。場中は触らない。</div>' : ''}</div>
+        <div class="closebar"><div class="ct">終了した理由（EXタイプ）</div><div class="exbtns">
+        ${EX_TYPES.map(t => `<button class="exb ${t.cls}" onclick="closePlan(${p.id},'${t.k}')">${t.k}</button>`).join('')}
+        <button class="del" onclick="delPlan(${p.id})">削除</button></div></div>`;
+    }
+    return `<div class="plan ${armed && !closed ? 'armed' : ''} ${closed ? 'closed' : ''}">
+      <div class="plan-head"><span class="plan-name">${p.name}</span>
+        <span class="plan-pat">${p.pat || ''}${p.score ? ' ・' + p.score + '点' : ''}</span>
+        ${pill}<span class="plan-date">${p.date}</span></div>${nums}${body}</div>`;
+  }).join('');
+  renderTally();
+}
+
+async function toggleCheck(id, i) {
+  const p = plans.find(x => x.id === id);
+  if (!p.checks) p.checks = [false,false,false];
+  p.checks[i] = !p.checks[i]; persistLocal(); render();
+}
+async function closePlan(id, type) {
+  const p = plans.find(x => x.id === id); p.status = 'closed'; p.exitType = type;
+  persistLocal(); render(); await updateToSheets(p);
+}
+async function reopenPlan(id) {
+  const p = plans.find(x => x.id === id); p.status = 'draft'; p.exitType = null;
+  persistLocal(); render(); await updateToSheets(p);
+}
+async function delPlan(id) {
+  if (!confirm('この計画を削除しますか？')) return;
+  plans = plans.filter(x => x.id !== id); persistLocal(); render();
+}
+
+function renderTally() {
+  const el = document.getElementById('tally');
+  const closed = plans.filter(p => p.status === 'closed');
+  if (!closed.length) { el.innerHTML = '<div class="empty">計画を「終了」させると、ここにEXの内訳が出ます。</div>'; return; }
+  const n = closed.length;
+  const cnt = t => closed.filter(p => p.exitType === t).length;
+  const sw = cnt('銘柄切替') + cnt('分散EX'), sl = cnt('SL撤退');
+  const swP = Math.round(sw/n*100), slP = Math.round(sl/n*100);
+  const bar = (label, val, pct, cls) => `<div class="tally-bar">
+    <div class="tl"><span>${label}</span><b>${val}件 / ${pct}%</b></div>
+    <div class="track"><div class="fill ${cls}" style="width:${pct}%"></div></div></div>`;
+  el.innerHTML = `<div style="font-size:11px;color:#888;margin-bottom:10px;">終了した計画 ${n}件</div>`
+    + bar('① 銘柄切替 ＋ ② 分散EX（目標：7割以上）', sw, swP, 'green')
+    + bar('③ SL撤退（目標：3割以下）', sl, slP, 'red')
+    + (swP >= 70 && slP <= 30
+      ? '<div class="tally-note ok">理想形。点数ベースのEXが主役になっている。</div>'
+      : '<div class="tally-note ng">①②が7割に届かない／SLが3割超なら、改善すべきはEXではなくEN。</div>');
+}
+
+recalc(); loadFromSheets();
+</script>
+</body>
+</html>
